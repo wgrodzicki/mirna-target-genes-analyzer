@@ -26,6 +26,7 @@ class miRNAAnalyzerGUI:
         self.mirna_file = tk.StringVar()
         self.gene_file = tk.StringVar()
         self.output_file = tk.StringVar(value="matching_genes.csv")
+        self.output_format = tk.StringVar(value="CSV")
         self.mirna_column = tk.StringVar(value="systematic_name")
         self.gene_symbol_column = tk.StringVar(value="GeneSymbol")
         self.accession_column = tk.StringVar(value="GenbankAccession")
@@ -59,51 +60,60 @@ class miRNAAnalyzerGUI:
         ttk.Button(main_frame, text="Browse...", command=self.browse_gene_file).grid(row=2, column=2, padx=5, pady=5)
         
         # Output file selection
-        ttk.Label(main_frame, text="Output CSV File:").grid(row=3, column=0, sticky=tk.W, pady=5)
+        ttk.Label(main_frame, text="Output File:").grid(row=3, column=0, sticky=tk.W, pady=5)
         ttk.Entry(main_frame, textvariable=self.output_file, width=50).grid(row=3, column=1, sticky=(tk.W, tk.E), pady=5)
         ttk.Button(main_frame, text="Browse...", command=self.browse_output_file).grid(row=3, column=2, padx=5, pady=5)
         
+        # Output format selection
+        ttk.Label(main_frame, text="Output Format:").grid(row=4, column=0, sticky=tk.W, pady=5)
+        format_frame = ttk.Frame(main_frame)
+        format_frame.grid(row=4, column=1, sticky=tk.W, pady=5)
+        format_combo = ttk.Combobox(format_frame, textvariable=self.output_format, values=["CSV", "TXT"], state="readonly", width=10)
+        format_combo.grid(row=0, column=0)
+        format_combo.bind("<<ComboboxSelected>>", self.on_format_change)
+        ttk.Label(format_frame, text="CSV: comma-separated | TXT: tab-delimited table", font=('Arial', 8), foreground='gray').grid(row=0, column=1, padx=(10, 0))
+        
         # Separator
-        ttk.Separator(main_frame, orient='horizontal').grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=15)
+        ttk.Separator(main_frame, orient='horizontal').grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=15)
         
         # Column configuration section
         config_label = ttk.Label(main_frame, text="Column Configuration (Optional)", font=('Arial', 10, 'bold'))
-        config_label.grid(row=5, column=0, columnspan=3, sticky=tk.W, pady=(5, 10))
+        config_label.grid(row=6, column=0, columnspan=3, sticky=tk.W, pady=(5, 10))
         
         # miRNA column name
-        ttk.Label(main_frame, text="miRNA Column Name:").grid(row=6, column=0, sticky=tk.W, pady=5, padx=(20, 0))
+        ttk.Label(main_frame, text="miRNA Column Name:").grid(row=7, column=0, sticky=tk.W, pady=5, padx=(20, 0))
         mirna_col_entry = ttk.Entry(main_frame, textvariable=self.mirna_column, width=30)
-        mirna_col_entry.grid(row=6, column=1, sticky=tk.W, pady=5)
-        ttk.Label(main_frame, text="(default: systematic_name)", font=('Arial', 8), foreground='gray').grid(row=6, column=2, sticky=tk.W, padx=5)
+        mirna_col_entry.grid(row=7, column=1, sticky=tk.W, pady=5)
+        ttk.Label(main_frame, text="(default: systematic_name)", font=('Arial', 8), foreground='gray').grid(row=7, column=2, sticky=tk.W, padx=5)
         
         # Gene symbol column name
-        ttk.Label(main_frame, text="Gene Symbol Column:").grid(row=7, column=0, sticky=tk.W, pady=5, padx=(20, 0))
+        ttk.Label(main_frame, text="Gene Symbol Column:").grid(row=8, column=0, sticky=tk.W, pady=5, padx=(20, 0))
         gene_col_entry = ttk.Entry(main_frame, textvariable=self.gene_symbol_column, width=30)
-        gene_col_entry.grid(row=7, column=1, sticky=tk.W, pady=5)
-        ttk.Label(main_frame, text="(default: GeneSymbol)", font=('Arial', 8), foreground='gray').grid(row=7, column=2, sticky=tk.W, padx=5)
+        gene_col_entry.grid(row=8, column=1, sticky=tk.W, pady=5)
+        ttk.Label(main_frame, text="(default: GeneSymbol)", font=('Arial', 8), foreground='gray').grid(row=8, column=2, sticky=tk.W, padx=5)
         
         # Accession column name
-        ttk.Label(main_frame, text="Accession Column:").grid(row=8, column=0, sticky=tk.W, pady=5, padx=(20, 0))
+        ttk.Label(main_frame, text="Accession Column:").grid(row=9, column=0, sticky=tk.W, pady=5, padx=(20, 0))
         acc_col_entry = ttk.Entry(main_frame, textvariable=self.accession_column, width=30)
-        acc_col_entry.grid(row=8, column=1, sticky=tk.W, pady=5)
-        ttk.Label(main_frame, text="(default: GenbankAccession)", font=('Arial', 8), foreground='gray').grid(row=8, column=2, sticky=tk.W, padx=5)
+        acc_col_entry.grid(row=9, column=1, sticky=tk.W, pady=5)
+        ttk.Label(main_frame, text="(default: GenbankAccession)", font=('Arial', 8), foreground='gray').grid(row=9, column=2, sticky=tk.W, padx=5)
         
         # Separator
-        ttk.Separator(main_frame, orient='horizontal').grid(row=9, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=15)
+        ttk.Separator(main_frame, orient='horizontal').grid(row=10, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=15)
         
         # Run button
         self.run_button = ttk.Button(main_frame, text="Run Analysis", command=self.run_analysis)
-        self.run_button.grid(row=10, column=0, columnspan=3, pady=10)
+        self.run_button.grid(row=11, column=0, columnspan=3, pady=10)
         
         # Progress bar
         self.progress = ttk.Progressbar(main_frame, mode='indeterminate')
-        self.progress.grid(row=11, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        self.progress.grid(row=12, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
         
         # Log area
-        ttk.Label(main_frame, text="Analysis Log:").grid(row=12, column=0, sticky=tk.W, pady=(10, 5))
+        ttk.Label(main_frame, text="Analysis Log:").grid(row=13, column=0, sticky=tk.W, pady=(10, 5))
         
         self.log_text = scrolledtext.ScrolledText(main_frame, height=15, width=80, state='disabled')
-        self.log_text.grid(row=13, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
+        self.log_text.grid(row=14, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
         
         # Configure text tags for colored output
         self.log_text.tag_config('success', foreground='green')
@@ -112,10 +122,20 @@ class miRNAAnalyzerGUI:
         
         # Info label
         info_text = "This tool finds genes that are both predicted targets of your identified miRNAs\nand present in your gene expression data (using miRDB v6.0, score ≥ 80)."
-        ttk.Label(main_frame, text=info_text, font=('Arial', 9), foreground='gray').grid(row=14, column=0, columnspan=3, pady=(10, 0))
+        ttk.Label(main_frame, text=info_text, font=('Arial', 9), foreground='gray').grid(row=15, column=0, columnspan=3, pady=(10, 0))
         
         # Configure row weights for resizing
-        main_frame.rowconfigure(13, weight=1)
+        main_frame.rowconfigure(14, weight=1)
+    
+    def on_format_change(self, event=None):
+        """Update output file extension when format changes"""
+        current_file = self.output_file.get()
+        if current_file:
+            base_name = os.path.splitext(current_file)[0]
+            if self.output_format.get() == "CSV":
+                self.output_file.set(base_name + ".csv")
+            else:
+                self.output_file.set(base_name + ".txt")
     
     def browse_mirna_file(self):
         filename = filedialog.askopenfilename(
@@ -134,10 +154,17 @@ class miRNAAnalyzerGUI:
             self.gene_file.set(filename)
     
     def browse_output_file(self):
+        if self.output_format.get() == "CSV":
+            filetypes = [("CSV Files", "*.csv"), ("All Files", "*.*")]
+            default_ext = ".csv"
+        else:
+            filetypes = [("Text Files", "*.txt"), ("All Files", "*.*")]
+            default_ext = ".txt"
+        
         filename = filedialog.asksaveasfilename(
             title="Save Output As",
-            defaultextension=".csv",
-            filetypes=[("CSV Files", "*.csv"), ("All Files", "*.*")]
+            defaultextension=default_ext,
+            filetypes=filetypes
         )
         if filename:
             self.output_file.set(filename)
@@ -259,8 +286,7 @@ class miRNAAnalyzerGUI:
                 for gene in matching_genes:
                     results.append({
                         'miRNA': mirna,
-                        'Target_Gene': gene,
-                        'Source': 'miRDB_v6.0_score>=80'
+                        'Target_Gene': gene
                     })
                 
                 if matching_genes:
@@ -275,9 +301,17 @@ class miRNAAnalyzerGUI:
             
             if results:
                 df_results = pd.DataFrame(results)
-                df_results.to_csv(self.output_file.get(), index=False)
                 
-                self.log(f"✓ Results saved to: {self.output_file.get()}", 'success')
+                # Save based on selected format
+                if self.output_format.get() == "CSV":
+                    # CSV format: simple two-column format
+                    df_results.to_csv(self.output_file.get(), index=False)
+                    self.log(f"✓ Results saved to: {self.output_file.get()} (CSV format)", 'success')
+                else:
+                    # TXT format: tab-delimited table with miRNAs as columns
+                    self.save_txt_format(df_results, self.output_file.get())
+                    self.log(f"✓ Results saved to: {self.output_file.get()} (TXT table format)", 'success')
+                
                 self.log(f"  Total matches: {len(results)}")
                 self.log(f"  Unique miRNAs: {df_results['miRNA'].nunique()}")
                 self.log(f"  Unique genes: {df_results['Target_Gene'].nunique()}")
@@ -306,6 +340,34 @@ class miRNAAnalyzerGUI:
             self.progress.stop()
             self.run_button.config(state='normal')
             self.is_running = False
+    
+    def save_txt_format(self, df_results, output_file):
+        """Save results in TXT format as a tab-delimited table with miRNAs as columns"""
+        # Group genes by miRNA
+        mirna_genes = {}
+        for mirna in df_results['miRNA'].unique():
+            genes = df_results[df_results['miRNA'] == mirna]['Target_Gene'].tolist()
+            mirna_genes[mirna] = genes
+        
+        # Find the maximum number of genes for any miRNA (for row count)
+        max_genes = max(len(genes) for genes in mirna_genes.values())
+        
+        # Create the table
+        with open(output_file, 'w') as f:
+            # Write header row (miRNA names)
+            mirna_list = list(mirna_genes.keys())
+            f.write('\t'.join(mirna_list) + '\n')
+            
+            # Write gene rows
+            for i in range(max_genes):
+                row = []
+                for mirna in mirna_list:
+                    genes = mirna_genes[mirna]
+                    if i < len(genes):
+                        row.append(genes[i])
+                    else:
+                        row.append('')  # Empty cell if this miRNA has fewer genes
+                f.write('\t'.join(row) + '\n')
     
     def extract_mirna_from_file(self, mirna_file, mirna_column_name):
         """Extract miRNA symbols from file"""

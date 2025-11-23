@@ -7,7 +7,8 @@ A user-friendly tool for analyzing miRNA target genes by matching miRNA predicti
 - **Simple GUI Interface**: Easy-to-use graphical interface for file selection
 - **Automated Analysis**: Matches miRNA targets with gene expression data
 - **miRDB Integration**: Uses miRDB v6.0 predictions (score ≥ 80)
-- **CSV Output**: Results saved in easy-to-analyze CSV format
+- **Flexible Output Formats**: Choose between CSV or TXT table format
+- **Auto-Download Database**: Downloads latest miRDB data on first run
 
 ## Quick Start
 
@@ -38,17 +39,21 @@ python mirna_analyzer_gui.py
    - **miRNA File**: Your microarray results with identified miRNA (must have `systematic_name` column)
    - **Gene Expression File**: Your gene expression data (must have `GeneSymbol` and `GenbankAccession` columns)
 
-3. **Choose output location**:
-   - Specify where to save the results CSV file
+3. **Select output format**:
+   - Choose between CSV (comma-separated) or TXT (tab-delimited table)
 
-4. **Run Analysis**:
+4. **Choose output location**:
+   - Specify where to save the results file
+
+5. **Run Analysis**:
    - Click "Run Analysis" button
    - The progress bar will show activity
    - Watch the log for detailed progress
 
-5. **View Results**:
-   - Results are saved to the specified CSV file
-   - Contains three columns: `miRNA`, `Target_Gene`, `Source`
+6. **View Results**:
+   - Results are saved to the specified file
+   - CSV: Two columns (`miRNA`, `Target_Gene`)
+   - TXT: Table format with miRNAs as columns
 
 ## Input File Format
 
@@ -70,12 +75,22 @@ A_44_P111123 0.0019     Mtus2         NM_001374100       ...
 
 ## Output Format
 
-The results CSV contains matching genes:
+### CSV Format (Comma-separated)
+Results contain matching genes with two columns:
 ```csv
-miRNA,Target_Gene,Source
-rno-miR-125b-5p,Sel1l,miRDB_v6.0_score>=80
-rno-miR-125b-5p,Slc1a5,miRDB_v6.0_score>=80
-rno-miR-126a-5p,Abcg5,miRDB_v6.0_score>=80
+miRNA,Target_Gene
+rno-miR-125b-5p,Sel1l
+rno-miR-125b-5p,Slc1a5
+rno-miR-126a-5p,Abcg5
+```
+
+### TXT Format (Tab-delimited Table)
+Results formatted as a table with miRNAs as column headers:
+```
+rno-miR-125b-5p	rno-miR-126a-5p	rno-miR-1b
+Sel1l	Abcg5	Bsn
+Slc1a5	Rtn4rl1	Myo1e
+Tmem120b	Ppp1r10	Atp6v1a
 ```
 
 ## miRDB Database

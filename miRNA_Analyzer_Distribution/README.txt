@@ -18,6 +18,7 @@ This package contains:
 2. **Select Your Files**
    - Browse for your miRNA file (File #1)
    - Browse for your gene expression file (File #2)
+   - Choose output format (CSV or TXT)
    - Choose where to save the results
 
 3. **Run Analysis**
@@ -50,10 +51,16 @@ This package contains:
 
 ## Output
 
-Results are saved as CSV with columns:
+### CSV Format
+Comma-separated file with two columns:
 - `miRNA` - The miRNA identifier
 - `Target_Gene` - Matching gene symbol
-- `Source` - Database and scoring info
+
+### TXT Format
+Tab-delimited table:
+- Column headers are miRNA identifiers
+- Rows below each column contain target genes for that miRNA
+- Easy to view side-by-side comparison
 
 ## Database Information
 

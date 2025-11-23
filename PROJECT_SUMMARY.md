@@ -13,6 +13,7 @@ I've successfully created a complete standalone tool for your miRNA target gene 
    - **Features**: 
      - Beautiful GUI interface
      - File browser for easy selection
+     - Output format selection (CSV or TXT)
      - Real-time progress tracking
      - Detailed logging
      - No Python installation needed
@@ -62,8 +63,9 @@ The tool performs these steps automatically:
    - Finds overlap between predictions and your data
    - **Result**: Found 40 matches from 11 miRNAs
 
-5. **Saves results** to CSV
-   - Three columns: miRNA, Target_Gene, Source
+5. **Saves results** in your chosen format
+   - **CSV format**: Two columns (miRNA, Target_Gene)
+   - **TXT format**: Tab-delimited table with miRNAs as columns, genes as rows
    - Easy to open in Excel or other tools
 
 ## Test Results

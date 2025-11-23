@@ -1,0 +1,11 @@
+﻿rno-miR-125b-5p	rno-miR-126a-5p	rno-miR-1b	rno-miR-218a-5p	rno-miR-29a-5p	rno-miR-376c-3p	rno-miR-379-3p	rno-miR-384-5p	rno-miR-431	rno-miR-702-3p	rno-miR-708-3p
+Sel1l	Abcg5	Bsn	Shank2	Letm1	Map1b	Gak	Snx33	Vps39	RGD1307554	Rasl12
+Slc1a5	Rtn4rl1	Myo1e	Pld5	Arv1		Nlgn1	Abcg5		Spryd3	
+Tmem120b	Ppp1r10	Atp6v1a		Atp6v1a			Erlin1			
+Rfxank	Tmx4			Stau2			Necap1			
+Mknk2	Csf1						Pnkd			
+Bap1							Tmem200a			
+G4							Me1			
+Stard13							Rab15			
+Dus1l							Pik3cd			
+							Fam110b			
