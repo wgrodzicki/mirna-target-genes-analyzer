@@ -34,20 +34,35 @@ This package contains:
 
 ## Input File Requirements
 
-### miRNA File
+### miRNA File (Required)
 - Format: Tab-separated text (.txt)
 - Default column: `systematic_name` (configurable in GUI)
 - Example: `file-#1-mirna.txt`
 
-### Gene Expression File
+### Gene Expression File (Optional)
 - Format: Tab-separated text (.txt)
 - Default columns: `GeneSymbol`, `GenbankAccession` (configurable in GUI)
 - Example: `file-#2-genes.txt`
+- **Leave blank** to get all predicted targets from miRDB without filtering
 
 ### Custom Column Names
 - The application provides optional fields to configure column names
 - If your files use different column headers, enter them in the "Column Configuration" section
 - Default values are pre-filled and work with the sample files
+
+## Analysis Modes
+
+The tool offers two ways to analyze your miRNAs:
+
+### With Gene Expression File
+- Matches miRDB predictions against your expression data
+- Returns only genes that are both predicted targets AND in your dataset
+- Best for: Finding which predicted targets are present in your experiment
+
+### Without Gene Expression File
+- Returns ALL predicted targets from miRDB for your miRNAs
+- No filtering - complete list of high-confidence predictions
+- Best for: Exploring all possible targets without expression data constraints
 
 ## Output
 

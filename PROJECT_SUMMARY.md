@@ -40,7 +40,10 @@ I've successfully created a complete standalone tool for your miRNA target gene 
 
 ## How It Works
 
-The tool performs these steps automatically:
+The tool offers **two analysis modes**:
+
+### Mode 1: With Gene Expression File (File #2)
+Matches miRDB predictions against your expression data:
 
 1. **Extracts miRNAs** from your microarray results (File #1)
    - Reads the `systematic_name` column
@@ -67,6 +70,17 @@ The tool performs these steps automatically:
    - **CSV format**: Two columns (miRNA, Target_Gene)
    - **TXT format**: Tab-delimited table with miRNAs as columns, genes as rows
    - Easy to open in Excel or other tools
+
+### Mode 2: Without Gene Expression File
+Returns all predicted targets directly from miRDB:
+
+1. **Extracts miRNAs** from your file (File #1)
+2. **Downloads miRDB predictions** (if not cached)
+3. **Returns all predicted targets** for your miRNAs
+   - No filtering against expression data
+   - Complete list of high-confidence targets (score ≥ 80)
+   - Target accessions from miRDB database
+4. **Saves results** in your chosen format
 
 ## Test Results
 

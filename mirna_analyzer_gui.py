@@ -54,8 +54,8 @@ class miRNAAnalyzerGUI:
         ttk.Entry(main_frame, textvariable=self.mirna_file, width=50).grid(row=1, column=1, sticky=(tk.W, tk.E), pady=5)
         ttk.Button(main_frame, text="Browse...", command=self.browse_mirna_file).grid(row=1, column=2, padx=5, pady=5)
         
-        # Gene file selection
-        ttk.Label(main_frame, text="Gene Expression File:").grid(row=2, column=0, sticky=tk.W, pady=5)
+        # Gene file selection (optional)
+        ttk.Label(main_frame, text="Gene Expression File (Optional):").grid(row=2, column=0, sticky=tk.W, pady=5)
         ttk.Entry(main_frame, textvariable=self.gene_file, width=50).grid(row=2, column=1, sticky=(tk.W, tk.E), pady=5)
         ttk.Button(main_frame, text="Browse...", command=self.browse_gene_file).grid(row=2, column=2, padx=5, pady=5)
         
@@ -121,7 +121,7 @@ class miRNAAnalyzerGUI:
         self.log_text.tag_config('info', foreground='blue')
         
         # Info label
-        info_text = "This tool finds genes that are both predicted targets of your identified miRNAs\nand present in your gene expression data (using miRDB v6.0, score ≥ 80)."
+        info_text = "With gene file: finds targets that match your expression data\nWithout gene file: returns all predicted targets from miRDB (score ≥ 80)"
         ttk.Label(main_frame, text=info_text, font=('Arial', 9), foreground='gray').grid(row=15, column=0, columnspan=3, pady=(10, 0))
         
         # Configure row weights for resizing
@@ -190,10 +190,6 @@ class miRNAAnalyzerGUI:
             messagebox.showerror("Error", "Please select a miRNA file")
             return
         
-        if not self.gene_file.get():
-            messagebox.showerror("Error", "Please select a gene expression file")
-            return
-        
         if not self.output_file.get():
             messagebox.showerror("Error", "Please specify an output file")
             return
@@ -226,12 +222,18 @@ class miRNAAnalyzerGUI:
                 self.mirna_column.get()
             )
             
-            # Step 2: Extract genes and create accession mapping
-            expression_genes, accession_to_gene = self.extract_genes_and_accessions(
-                self.gene_file.get(),
-                self.gene_symbol_column.get(),
-                self.accession_column.get()
-            )
+            # Step 2: Extract genes and create accession mapping (if gene file provided)
+            has_gene_file = bool(self.gene_file.get())
+            if has_gene_file:
+                expression_genes, accession_to_gene = self.extract_genes_and_accessions(
+                    self.gene_file.get(),
+                    self.gene_symbol_column.get(),
+                    self.accession_column.get()
+                )
+            else:
+                self.log("\nNo gene expression file provided - will return all predicted targets", 'info')
+                expression_genes = None
+                accession_to_gene = None
             
             # Step 3: Get miRDB predictions
             mirna_targets_db = self.get_mirdb_predictions()
@@ -263,36 +265,46 @@ class miRNAAnalyzerGUI:
                 target_accessions = mirna_targets_db[mirna]
                 self.log(f"  Found {len(target_accessions)} predicted targets")
                 
-                # Convert accessions to gene symbols
-                target_genes = []
-                for accession in target_accessions:
-                    if accession in accession_to_gene:
-                        gene = accession_to_gene[accession]
-                        if gene not in target_genes:
-                            target_genes.append(gene)
-                    else:
-                        base_accession = accession.split('.')[0]
-                        if base_accession in accession_to_gene:
-                            gene = accession_to_gene[base_accession]
+                if has_gene_file:
+                    # Mode 1: Match against gene expression data
+                    # Convert accessions to gene symbols
+                    target_genes = []
+                    for accession in target_accessions:
+                        if accession in accession_to_gene:
+                            gene = accession_to_gene[accession]
                             if gene not in target_genes:
                                 target_genes.append(gene)
-                
-                if target_genes:
-                    self.log(f"  Matched {len(target_genes)} to your gene data")
-                
-                # Find matches
-                matching_genes = [gene for gene in target_genes if gene in expression_genes]
-                
-                for gene in matching_genes:
-                    results.append({
-                        'miRNA': mirna,
-                        'Target_Gene': gene
-                    })
-                
-                if matching_genes:
-                    self.log(f"  ✓ {len(matching_genes)} matches found", 'success')
+                        else:
+                            base_accession = accession.split('.')[0]
+                            if base_accession in accession_to_gene:
+                                gene = accession_to_gene[base_accession]
+                                if gene not in target_genes:
+                                    target_genes.append(gene)
+                    
+                    if target_genes:
+                        self.log(f"  Matched {len(target_genes)} to your gene data")
+                    
+                    # Find matches
+                    matching_genes = [gene for gene in target_genes if gene in expression_genes]
+                    
+                    for gene in matching_genes:
+                        results.append({
+                            'miRNA': mirna,
+                            'Target_Gene': gene
+                        })
+                    
+                    if matching_genes:
+                        self.log(f"  ✓ {len(matching_genes)} matches found", 'success')
+                    else:
+                        self.log("  → No matches in expression data")
                 else:
-                    self.log("  → No matches in expression data")
+                    # Mode 2: Return all predicted targets (no gene matching)
+                    for accession in target_accessions:
+                        results.append({
+                            'miRNA': mirna,
+                            'Target_Gene': accession
+                        })
+                    self.log(f"  ✓ Added {len(target_accessions)} target accessions", 'success')
             
             # Step 5: Save results
             self.log("\n" + "=" * 70)
@@ -312,20 +324,30 @@ class miRNAAnalyzerGUI:
                     self.save_txt_format(df_results, self.output_file.get())
                     self.log(f"✓ Results saved to: {self.output_file.get()} (TXT table format)", 'success')
                 
-                self.log(f"  Total matches: {len(results)}")
+                self.log(f"  Total results: {len(results)}")
                 self.log(f"  Unique miRNAs: {df_results['miRNA'].nunique()}")
-                self.log(f"  Unique genes: {df_results['Target_Gene'].nunique()}")
+                if has_gene_file:
+                    self.log(f"  Unique genes: {df_results['Target_Gene'].nunique()}")
+                else:
+                    self.log(f"  Unique targets: {df_results['Target_Gene'].nunique()}")
                 
                 # Show summary
                 self.log("\nTop miRNAs by target count:")
                 summary = df_results.groupby('miRNA')['Target_Gene'].count().sort_values(ascending=False)
                 for idx, (mirna, count) in enumerate(summary.head(5).items(), 1):
-                    self.log(f"  {idx}. {mirna}: {count} genes")
+                    if has_gene_file:
+                        self.log(f"  {idx}. {mirna}: {count} genes")
+                    else:
+                        self.log(f"  {idx}. {mirna}: {count} targets")
                 
-                messagebox.showinfo("Success", f"Analysis complete!\n\n{len(results)} matching genes found.\n\nResults saved to:\n{self.output_file.get()}")
+                result_type = "matching genes" if has_gene_file else "predicted targets"
+                messagebox.showinfo("Success", f"Analysis complete!\n\n{len(results)} {result_type} found.\n\nResults saved to:\n{self.output_file.get()}")
             else:
-                self.log("⚠ No matching genes found", 'error')
-                messagebox.showwarning("No Results", "No matching genes were found.\n\nThis may happen if:\n- Target genes don't overlap with your expression data\n- Accession formats don't match\n- Score threshold is too high")
+                self.log("⚠ No results found", 'error')
+                if has_gene_file:
+                    messagebox.showwarning("No Results", "No matching genes were found.\n\nThis may happen if:\n- Target genes don't overlap with your expression data\n- Accession formats don't match\n- Score threshold is too high")
+                else:
+                    messagebox.showwarning("No Results", "No predicted targets were found for the provided miRNAs.\n\nThis may happen if:\n- miRNAs are not in miRDB database\n- miRNA names are not in standard format\n- Score threshold is too high (≥80)")
             
             self.log("\n" + "=" * 70)
             self.log("Analysis complete!", 'success')
