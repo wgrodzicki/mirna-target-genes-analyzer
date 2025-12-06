@@ -163,5 +163,7 @@ If you use this tool in your research, please cite miRDB:
 ---
 
 **Version**: 1.0  
-**Author**: Created for gene expression analysis
+**Author**: Wojciech Grodzicki
 **License**: Free for academic and research use
+
+Built with an AI agent.
