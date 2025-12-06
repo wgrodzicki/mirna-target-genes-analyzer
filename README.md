@@ -5,7 +5,8 @@ A user-friendly tool for analyzing miRNA target genes by matching miRNA predicti
 ## Features
 
 - **Simple GUI Interface**: Easy-to-use graphical interface for file selection
-- **Automated Analysis**: Matches miRNA targets with gene expression data
+- **Two Analysis Modes**: With or without gene expression data comparison
+- **Automated Analysis**: Matches miRNA targets with gene expression data (optional)
 - **miRDB Integration**: Uses miRDB v6.0 predictions (score ≥ 80)
 - **Flexible Output Formats**: Choose between CSV or TXT table format
 - **Auto-Download Database**: Downloads latest miRDB data on first run
@@ -36,8 +37,10 @@ python mirna_analyzer_gui.py
    - Use the batch file or run the Python script directly
 
 2. **Select your input files**:
-   - **miRNA File**: Your microarray results with identified miRNA (must have `systematic_name` column)
-   - **Gene Expression File**: Your gene expression data (must have `GeneSymbol` and `GenbankAccession` columns)
+   - **miRNA File** (required): Your microarray results with identified miRNA (must have `systematic_name` column)
+   - **Gene Expression File** (optional): Your gene expression data (must have `GeneSymbol` and `GenbankAccession` columns)
+     - **With this file**: Finds targets that match your expression data
+     - **Without this file**: Returns all predicted targets from miRDB
 
 3. **Select output format**:
    - Choose between CSV (comma-separated) or TXT (tab-delimited table)
@@ -54,6 +57,19 @@ python mirna_analyzer_gui.py
    - Results are saved to the specified file
    - CSV: Two columns (`miRNA`, `Target_Gene`)
    - TXT: Table format with miRNAs as columns
+
+## Analysis Modes
+
+### Mode 1: With Gene Expression File
+Finds the intersection between miRDB predicted targets and your gene expression data.
+- **Use case**: You have expression data and want to know which predicted targets are present in your dataset
+- **Output**: Gene symbols that are both predicted targets and in your expression data
+
+### Mode 2: Without Gene Expression File
+Returns all high-confidence predicted targets from miRDB.
+- **Use case**: You want a complete list of predicted targets without filtering
+- **Output**: Target accessions directly from miRDB database
+- **Advantage**: Get all predictions even if you don't have expression data
 
 ## Input File Format
 
@@ -111,6 +127,7 @@ The application automatically downloads the miRDB v6.0 predictions database on f
 ### "Could not find GeneSymbol header"
 - Ensure your gene expression file is tab-separated
 - Check for `GeneSymbol` and `GenbankAccession` columns
+- Or leave the gene expression file blank to get all predicted targets
 
 ### "No matching genes found"
 - This may happen if predicted targets don't overlap with your expression data
